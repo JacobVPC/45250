@@ -71,31 +71,31 @@ void opcontrol() {
         int rightX = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
         chassis.arcade(leftY, rightX);
 
-
-        if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){ //spins firststage
+        //first stage
+        if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){ 
             firstStage.move(127);
-        } else{
-            firstStage.brake();
-        }
-        if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){ // reverses first stage
+        } 
+        else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
             firstStage.move(-100);
-        } else{
+        } 
+        else{
             firstStage.brake();
         }
 
-        if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){ //spins second stage
+        // secnod stage
+        if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){ 
             secondStage.move(127);
-        } else{
-            secondStage.brake();
-        }
-        if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){ // reverse second stage
+        } 
+        else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){ 
             secondStage.move(-100);
         }
-        
+        else{
+            secondStage.brake();
+        }
 
 
 
-        pros::delay(25);
+        pros::delay(10);
 
     }
 

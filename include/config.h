@@ -10,7 +10,7 @@
 inline pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
 // motor groups
-inline pros::MotorGroup leftMotors({-18, 19, -20}, pros::MotorGearset::blue); 
+inline pros::MotorGroup leftMotors({-18, 1, -6}, pros::MotorGearset::blue); 
 inline pros::MotorGroup rightMotors({13, -12, 11}, pros::MotorGearset::blue);
 
 inline pros::Motor firstStage(19, pros::MotorGearset::blue);
@@ -20,8 +20,8 @@ inline pros::Motor secondStage(20,pros::MotorGearset::blue);
 inline pros::Imu imu(10);
 
 // tracking wheels
-// horizontal tracking wheel encoder. Rotation sensor, port 20, not reversed
-inline pros::Rotation horizontalEnc(20);
+// horizontal tracking wheel encoder. Rotation sensor, port 2, not reversed
+inline pros::Rotation horizontalEnc(2);
 // vertical tracking wheel encoder. Rotation sensor, port 11, reversed
 inline pros::Rotation verticalEnc(-11);
 // horizontal tracking wheel. 2.75" diameter, 5.75" offset, back of the robot (negative)

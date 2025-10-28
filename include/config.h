@@ -13,7 +13,8 @@ inline pros::Controller controller(pros::E_CONTROLLER_MASTER);
 inline pros::MotorGroup leftMotors({-18, 1, -6}, pros::MotorGearset::blue); 
 inline pros::MotorGroup rightMotors({13, -12, 11}, pros::MotorGearset::blue);
 
-inline pros::Motor firstStage(19, pros::MotorGearset::blue);
+//motors
+inline pros::Motor firstStage(-19, pros::MotorGearset::blue);
 inline pros::Motor secondStage(20,pros::MotorGearset::blue);
 
 // Inertial Sensor on port 10

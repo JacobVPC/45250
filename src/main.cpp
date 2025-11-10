@@ -1,35 +1,23 @@
-#include "main.h"
 #include "config.h"
-#include "lemlib/api.hpp" // IWYU pragma: keep
-#include "liblvgl/llemu.hpp"
-#include "pros/misc.h"
+#include "autos.hpp"
+#include "main.h"
 
 
 void initialize() {
-    pros::lcd::initialize(); // initialize brain screen
-    chassis.calibrate(); // calibrate sensors
+    pros::lcd::initialize(); 
+    chassis.calibrate();
 
-    
 
-    // the default rate is 50. however, if you need to change the rate, you
-    // can do the following.
-    // lemlib::bufferedStdout().setRate(...);
-    // If you use bluetooth or a wired connection, you will want to have a rate of 10ms
-
-    // for more information on how the formatting for the loggers
-    // works, refer to the fmtlib docs
-
-    // thread to for brain screen and position logging
-    pros::Task screenTask([&]() {
+    pros::Task backgroundScreenTask([&]() {
         while (true) {
-            // print robot location to the brain screen
-            pros::lcd::print(0, "X: %f", chassis.getPose().x); // x
-            pros::lcd::print(1, "Y: %f", chassis.getPose().y); // y
-            pros::lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
-            // log position telemetry
-            lemlib::telemetrySink()->info("Chassis pose: {}", chassis.getPose());
-            // delay to save resources
-            pros::delay(30);
+            
+            pros::lcd::print(0, "X: %f", chassis.getPose().x); 
+            pros::lcd::print(1, "Y: %f", chassis.getPose().y); 
+            pros::lcd::print(2, "Theta: %f", chassis.getPose().theta); 
+
+
+
+            pros::delay(50);
         }
     });
 }
@@ -44,55 +32,96 @@ void disabled() {}
  */
 void competition_initialize() {}
 
+
+
 // get a path used for pure pursuit
 // this needs to be put outside a function
 ASSET(example_txt); // '.' replaced with "_" to make c++ happy
 
-/**
- * Runs during auto
- *
- * This is an example autonomous routine which demonstrates a lot of the features LemLib has to offer
- */
+
+
+
+
 void autonomous() {
-    
+
+    auto_awp();
+
+    //auto_leftSide();
+
+    //auto_rightSide();
+
+    //auto_elims();
+
+    //skills();
+
 }
 
-/**
- * Runs in driver control
- */
+
+
+
+
 void opcontrol() {
 
+    scraper.set_value(false);
+    wing.set_value(false);
 
+    //variable declorations and initilizations
+    bool wingOn = false;
+    bool scraperOn = false;
+
+    //motor break changing from brake to coast
     firstStage.set_brake_mode(pros::MotorBrake::coast);
     secondStage.set_brake_mode(pros::MotorBrake::coast);
+    intake.set_brake_mode(pros::MotorBrake::coast);
+
     while (true) {
+
         // get left y and right x positions
         int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
         int rightX = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
         chassis.arcade(leftY, rightX);
 
-        //first stage
+        //intake controlls
         if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){ 
             firstStage.move(127);
+            secondStage.move(-25);
+            
         } else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
-            firstStage.move(-100);
+            intake.move(127);
+
+        } else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){ 
+            firstStage.move(-127);
+
+        } else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){ 
+            intake.move(-127);
+
+        }else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)){
+            firstStage.move(110);
+
         } else{
             firstStage.brake();
-        }
-
-        // secnod stage
-        if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){ 
-            secondStage.move(127);
-        } else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){ 
-            secondStage.move(-100);
-        }else{
             secondStage.brake();
+            intake.brake();
         }
+        
+
+        //wing pneumatic controlls
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
+            wingOn = !wingOn;
+            wing.set_value(wingOn);
+
+        } 
+
+        //scraper pneumatic controlls
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)){
+            scraperOn = !scraperOn;
+            scraper.set_value(scraperOn);
+
+        } 
 
 
 
         pros::delay(10);
-
     }
 
 }

@@ -1,5 +1,10 @@
 #include "lemlib/api.hpp" // IWYU pragma: keep
 #include "pros/abstract_motor.hpp"
+#include "pros/adi.h"
+#include "pros/adi.hpp"
+#include "pros/motor_group.hpp"
+#include "pros/misc.h"
+
 
 
 
@@ -10,63 +15,66 @@
 inline pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
 // motor groups
-inline pros::MotorGroup leftMotors({-18, 1, -6}, pros::MotorGearset::blue); 
-inline pros::MotorGroup rightMotors({13, -12, 11}, pros::MotorGearset::blue);
+inline pros::MotorGroup leftMotors({-13, -14, -15}, pros::MotorGearset::blue); 
+inline pros::MotorGroup rightMotors({16, 17, 18}, pros::MotorGearset::blue);
 
 //motors
-inline pros::Motor firstStage(-19, pros::MotorGearset::blue);
-inline pros::Motor secondStage(20,pros::MotorGearset::blue);
+inline pros::Motor firstStage(19, pros::MotorGearset::blue);
+inline pros::Motor secondStage(-20,pros::MotorGearset::blue);
+inline pros::MotorGroup intake({19,-20},pros::MotorGearset::blue);
 
 // Inertial Sensor on port 10
-inline pros::Imu imu(10);
+inline pros::Imu imu(9);
+
+// pneumatics
+inline pros::adi::Pneumatics wing('b',LOW);
+inline pros::adi::Pneumatics scraper('c',LOW);
 
 // tracking wheels
-// horizontal tracking wheel encoder. Rotation sensor, port 2, not reversed
-inline pros::Rotation horizontalEnc(2);
-// vertical tracking wheel encoder. Rotation sensor, port 11, reversed
-inline pros::Rotation verticalEnc(-11);
-// horizontal tracking wheel. 2.75" diameter, 5.75" offset, back of the robot (negative)
-inline lemlib::TrackingWheel horizontal(&horizontalEnc, lemlib::Omniwheel::NEW_2, -5.75);
-// vertical tracking wheel. 2.75" diameter, 2.5" offset, left of the robot (negative)
-inline lemlib::TrackingWheel vertical(&verticalEnc, lemlib::Omniwheel::NEW_2, -2.5);
+inline pros::Rotation rotation_horizontal(-2);
+inline pros::Rotation rotation_vertical(-1);
+
+// tracking wheels
+inline lemlib::TrackingWheel tw_horizontal(&rotation_horizontal, lemlib::Omniwheel::NEW_2, 0);
+inline lemlib::TrackingWheel tw_vertical(&rotation_vertical, lemlib::Omniwheel::NEW_2, 0);
 
 // drivetrain settings
 inline lemlib::Drivetrain drivetrain(&leftMotors, // left motor group
                               &rightMotors, // right motor group
                               11.5, // 11.5 inch track width
                               lemlib::Omniwheel::NEW_275, // using new 2.75" omnis
-                              600, // drivetrain rpm is 600
+                              450, // drivetrain rpm is 600
                               2 // horizontal drift is 2. If we had traction wheels, it would have been 8
 );
 
 // lateral motion controller PID
 inline lemlib::ControllerSettings linearController(10, // proportional gain (kP)
                                             0, // integral gain (kI)
-                                            3, // derivative gain (kD)
-                                            3, // anti windup
-                                            1, // small error range, in inches
-                                            100, // small error range timeout, in milliseconds
+                                            35, // derivative gain (kD)
+                                            0, // anti windup
+                                            3, // small error range, in inches
+                                            500, // small error range timeout, in milliseconds
                                             3, // large error range, in inches
                                             500, // large error range timeout, in milliseconds
-                                            20 // maximum acceleration (slew)
+                                            40 // maximum acceleration (slew)
 );
 
 // angular motion controller PID
 inline lemlib::ControllerSettings angularController(2, // proportional gain (kP)
                                              0, // integral gain (kI)
-                                             10, // derivative gain (kD)
-                                             3, // anti windup
-                                             1, // small error range, in degrees
+                                             12.7, // derivative gain (kD)
+                                             0, // anti windup
+                                             3, // small error range, in degrees
                                              100, // small error range timeout, in milliseconds
-                                             3, // large error range, in degrees
-                                             500, // large error range timeout, in milliseconds
+                                             6, // large error range, in degrees
+                                             200, // large error range timeout, in milliseconds
                                              0 // maximum acceleration (slew)
 );
 
 // sensors for odometry
-inline lemlib::OdomSensors sensors(&vertical, // vertical tracking wheel
+inline lemlib::OdomSensors sensors(&tw_vertical, // vertical tracking wheel
                             nullptr, // vertical tracking wheel 2, set to nullptr as we don't have a second one
-                            &horizontal, // horizontal tracking wheel
+                            &tw_horizontal, // horizontal tracking wheel
                             nullptr, // horizontal tracking wheel 2, set to nullptr as we don't have a second one
                             &imu // inertial sensor
 );
@@ -84,4 +92,9 @@ inline lemlib::ExpoDriveCurve steerCurve(3, // joystick deadband out of 127
 );
 
 // create the chassis
-inline lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors, &throttleCurve, &steerCurve);
+inline lemlib::Chassis chassis(drivetrain,
+                                 linearController,
+                                 angularController,
+                                 sensors,
+                                 &throttleCurve,
+                                 &steerCurve);

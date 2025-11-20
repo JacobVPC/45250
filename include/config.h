@@ -35,7 +35,6 @@ inline pros::Rotation rotation_horizontal(-2);
 inline pros::Rotation rotation_vertical(-1);
 
 // tracking wheels
-inline lemlib::TrackingWheel tw_horizontal(&rotation_horizontal, lemlib::Omniwheel::NEW_2, 0);
 inline lemlib::TrackingWheel tw_vertical(&rotation_vertical, lemlib::Omniwheel::NEW_2, 0);
 
 // drivetrain settings
@@ -44,7 +43,7 @@ inline lemlib::Drivetrain drivetrain(&leftMotors, // left motor group
                               11.5, // 11.5 inch track width
                               lemlib::Omniwheel::NEW_275, // using new 2.75" omnis
                               450, // drivetrain rpm is 600
-                              2 // horizontal drift is 2. If we had traction wheels, it would have been 8
+                              8 // horizontal drift is 2. If we had traction wheels, it would have been 8
 );
 
 // lateral motion controller PID
@@ -74,7 +73,7 @@ inline lemlib::ControllerSettings angularController(2, // proportional gain (kP)
 // sensors for odometry
 inline lemlib::OdomSensors sensors(&tw_vertical, // vertical tracking wheel
                             nullptr, // vertical tracking wheel 2, set to nullptr as we don't have a second one
-                            &tw_horizontal, // horizontal tracking wheel
+                            nullptr, // horizontal tracking wheel
                             nullptr, // horizontal tracking wheel 2, set to nullptr as we don't have a second one
                             &imu // inertial sensor
 );

@@ -50,7 +50,9 @@ void autonomous() {
 
     //auto_rightSide();
 
-    //auto_elims();
+    //auto_right_elims();
+
+    //auto_left_elims();
 
     //skills();
 
@@ -63,7 +65,7 @@ void autonomous() {
 void opcontrol() {
 
     scraper.set_value(false);
-    wing.set_value(false);
+    wing.set_value(true);
 
     //variable declorations and initilizations
     bool wingOn = false;

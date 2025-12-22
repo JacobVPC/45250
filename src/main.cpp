@@ -4,6 +4,7 @@
 
 
 void initialize() {
+    wing.set_value(true);
     pros::lcd::initialize(); 
     chassis.calibrate();
 
@@ -22,37 +23,24 @@ void initialize() {
     });
 }
 
-/**
- * Runs while the robot is disabled
- */
+
 void disabled() {}
 
-/**
- * runs after initialize if the robot is connected to field control
- */
+
 void competition_initialize() {}
-
-
-
-// get a path used for pure pursuit
-// this needs to be put outside a function
-ASSET(example_txt); // '.' replaced with "_" to make c++ happy
-
-
-
 
 
 void autonomous() {
 
-    auto_awp();
+    //auto_awp();
 
-    //auto_leftSide();
+    //auto_left_mid();
 
-    //auto_rightSide();
+    //auto_right_mid();
 
     //auto_right_elims();
 
-    //auto_left_elims();
+    auto_left_elims();
 
     //skills();
 
@@ -65,7 +53,7 @@ void autonomous() {
 void opcontrol() {
 
     scraper.set_value(false);
-    wing.set_value(true);
+
 
     //variable declorations and initilizations
     bool wingOn = false;

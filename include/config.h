@@ -4,6 +4,8 @@
 #include "pros/adi.hpp"
 #include "pros/motor_group.hpp"
 #include "pros/misc.h"
+#include "pros/optical.hpp"
+
 
 
 
@@ -11,17 +13,18 @@
 // With inlining: The compiler replaces every instance of 
 // the function call with the function's code itself. This
 //  eliminates the function call overhead, making the code run faster. 
+
 // controller
 inline pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
 // motor groups
 inline pros::MotorGroup leftMotors({-13, -14, -15}, pros::MotorGearset::blue); 
 inline pros::MotorGroup rightMotors({16, 17, 18}, pros::MotorGearset::blue);
-
+inline pros::MotorGroup AllMotors({-13, -14, -15, 16, 17, 18}, pros::MotorGearset::blue);
 //motors
-inline pros::Motor firstStage(19, pros::MotorGearset::blue);
-inline pros::Motor secondStage(-20,pros::MotorGearset::blue);
-inline pros::MotorGroup intake({19,-20},pros::MotorGearset::blue);
+inline pros::Motor firstStage(99, pros::MotorGearset::blue);
+inline pros::Motor secondStage(-11,pros::MotorGearset::blue);
+inline pros::MotorGroup intake({12,-11},pros::MotorGearset::blue);
 
 // Inertial Sensor on port 10
 inline pros::Imu imu(9);
@@ -31,8 +34,11 @@ inline pros::adi::Pneumatics wing('b',LOW);
 inline pros::adi::Pneumatics scraper('c',LOW);
 
 // tracking wheels
-inline pros::Rotation rotation_horizontal(-2);
-inline pros::Rotation rotation_vertical(-1);
+inline pros::Rotation rotation_vertical(2);
+
+//optical sensors
+inline pros::Optical top_optical(12);
+inline pros::Optical scraper_optical(99);
 
 // tracking wheels
 inline lemlib::TrackingWheel tw_vertical(&rotation_vertical, lemlib::Omniwheel::NEW_2, 0);
@@ -47,26 +53,26 @@ inline lemlib::Drivetrain drivetrain(&leftMotors, // left motor group
 );
 
 // lateral motion controller PID
-inline lemlib::ControllerSettings linearController(10, // proportional gain (kP)
+inline lemlib::ControllerSettings linearController(8, // proportional gain (kP)
                                             0, // integral gain (kI)
                                             35, // derivative gain (kD)
                                             0, // anti windup
-                                            3, // small error range, in inches
-                                            500, // small error range timeout, in milliseconds
-                                            3, // large error range, in inches
-                                            500, // large error range timeout, in milliseconds
-                                            40 // maximum acceleration (slew)
+                                            0, // small error range, in inches
+                                            0, // small error range timeout, in milliseconds
+                                            0, // large error range, in inches
+                                            0, // large error range timeout, in milliseconds
+                                            0 // maximum acceleration (slew)
 );
 
 // angular motion controller PID
-inline lemlib::ControllerSettings angularController(2, // proportional gain (kP)
+inline lemlib::ControllerSettings angularController(3, // proportional gain (kP)
                                              0, // integral gain (kI)
-                                             12.7, // derivative gain (kD)
+                                             30, // derivative gain (kD)
                                              0, // anti windup
-                                             3, // small error range, in degrees
-                                             100, // small error range timeout, in milliseconds
-                                             6, // large error range, in degrees
-                                             200, // large error range timeout, in milliseconds
+                                             0, // small error range, in degrees
+                                             0, // small error range timeout, in milliseconds
+                                             0, // large error range, in degrees
+                                             0, // large error range timeout, in milliseconds
                                              0 // maximum acceleration (slew)
 );
 

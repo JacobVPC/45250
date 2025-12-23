@@ -2,9 +2,11 @@
 #include "pros/abstract_motor.hpp"
 #include "pros/adi.h"
 #include "pros/adi.hpp"
+#include "pros/distance.hpp"
 #include "pros/motor_group.hpp"
 #include "pros/misc.h"
 #include "pros/optical.hpp"
+#include "mcl.hpp"
 
 
 
@@ -28,6 +30,11 @@ inline pros::MotorGroup intake({12,-11},pros::MotorGearset::blue);
 
 // Inertial Sensor on port 10
 inline pros::Imu imu(9);
+
+//distance sensors
+inline pros::Distance frontDs(99);
+inline pros::Distance leftDs(99);
+inline pros::Distance rightDs(99);
 
 // pneumatics
 inline pros::adi::Pneumatics wing('b',LOW);
@@ -103,3 +110,35 @@ inline lemlib::Chassis chassis(drivetrain,
                                  sensors,
                                  &throttleCurve,
                                  &steerCurve);
+
+
+                                 // ==========================================
+// MCL SETUP
+// ==========================================
+
+inline mcl mcl_localizer(frontDs, leftDs, rightDs);
+
+// Task to continuously update MCL
+inline void mcl_update_task(void* param) {
+    while (true) {
+        // Get current odometry from LemLib
+        lemlib::Pose odom_pose = chassis.getPose();
+        
+        // Update MCL with odometry
+        mcl_localizer.update(odom_pose);
+        
+        // Get MCL's corrected estimate
+        lemlib::Pose mcl_pose = mcl_localizer.getPose();
+        
+        // Override chassis pose with MCL estimate
+        // chassis.setPose(mcl_pose);  // Use this if you trust MCL more than odom
+        
+        // Debug output to terminal
+        printf("Odom: (%.1f, %.1f, %.1f°) | MCL: (%.1f, %.1f, %.1f°)\n",
+               odom_pose.x, odom_pose.y, odom_pose.theta * 180 / M_PI,
+               mcl_pose.x, mcl_pose.y, mcl_pose.theta * 180 / M_PI);
+        
+        pros::delay(50);  // Update at 20Hz
+    }
+}
+

@@ -6,7 +6,7 @@
 #include "pros/motor_group.hpp"
 #include "pros/misc.h"
 #include "pros/optical.hpp"
-#include "mcl.hpp"
+
 
 
 
@@ -24,28 +24,24 @@ inline pros::MotorGroup leftMotors({-13, -14, -15}, pros::MotorGearset::blue);
 inline pros::MotorGroup rightMotors({16, 17, 18}, pros::MotorGearset::blue);
 inline pros::MotorGroup AllMotors({-13, -14, -15, 16, 17, 18}, pros::MotorGearset::blue);
 //motors
-inline pros::Motor firstStage(99, pros::MotorGearset::blue);
-inline pros::Motor secondStage(-11,pros::MotorGearset::blue);
-inline pros::MotorGroup intake({12,-11},pros::MotorGearset::blue);
+inline pros::Motor firstStage(20, pros::MotorGearset::blue);
+inline pros::Motor secondStage(-12,pros::MotorGearset::blue);
+inline pros::MotorGroup intake({20,-12},pros::MotorGearset::blue);
 
 // Inertial Sensor on port 10
 inline pros::Imu imu(9);
 
-//distance sensors
-inline pros::Distance frontDs(99);
-inline pros::Distance leftDs(99);
-inline pros::Distance rightDs(99);
-
 // pneumatics
 inline pros::adi::Pneumatics wing('b',LOW);
 inline pros::adi::Pneumatics scraper('c',LOW);
+inline pros::adi::Pneumatics mid_goal('a',LOW);
 
 // tracking wheels
-inline pros::Rotation rotation_vertical(2);
+inline pros::Rotation rotation_vertical(19);
 
 //optical sensors
 inline pros::Optical top_optical(12);
-inline pros::Optical scraper_optical(99);
+inline pros::Optical middle_optical(11);
 
 // tracking wheels
 inline lemlib::TrackingWheel tw_vertical(&rotation_vertical, lemlib::Omniwheel::NEW_2, 0);
@@ -112,33 +108,22 @@ inline lemlib::Chassis chassis(drivetrain,
                                  &steerCurve);
 
 
-                                 // ==========================================
-// MCL SETUP
-// ==========================================
+//distance sensors
+inline pros::Distance frontDs(99);
+inline pros::Distance leftDs(99);
+inline pros::Distance rightDs(99);
 
-inline mcl mcl_localizer(frontDs, leftDs, rightDs);
 
-// Task to continuously update MCL
-inline void mcl_update_task(void* param) {
-    while (true) {
-        // Get current odometry from LemLib
-        lemlib::Pose odom_pose = chassis.getPose();
-        
-        // Update MCL with odometry
-        mcl_localizer.update(odom_pose);
-        
-        // Get MCL's corrected estimate
-        lemlib::Pose mcl_pose = mcl_localizer.getPose();
-        
-        // Override chassis pose with MCL estimate
-        // chassis.setPose(mcl_pose);  // Use this if you trust MCL more than odom
-        
-        // Debug output to terminal
-        printf("Odom: (%.1f, %.1f, %.1f°) | MCL: (%.1f, %.1f, %.1f°)\n",
-               odom_pose.x, odom_pose.y, odom_pose.theta * 180 / M_PI,
-               mcl_pose.x, mcl_pose.y, mcl_pose.theta * 180 / M_PI);
-        
-        pros::delay(50);  // Update at 20Hz
-    }
+namespace WallAngles {
+    constexpr double BOTTOM = 0.0;    // horizontal wall at bottom
+    constexpr double RIGHT = 90.0;    // vertical wall on right
+    constexpr double TOP = 180.0;     // horizontal wall at top
+    constexpr double LEFT = 270.0;    // vertical wall on left
+}                                
+
+
+namespace HeadingOffsets {
+    constexpr double HOR = -90.0;    // right ds
+    constexpr double HOF = 0.0;      // front ds
+    constexpr double HOL = 90.0;      // left ds
 }
-

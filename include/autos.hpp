@@ -1,12 +1,14 @@
 
 extern void auto_awp();
 
-extern void auto_left_9();
-extern void auto_right_9();
+extern void auto_left_4();
+extern void auto_right_4();
 
 extern void auto_right_7();
 extern void auto_left_7();
 
 extern void skills();
+extern void auto_left_counter();
 
-extern void score(int time, int x, int y, int heading);
+extern void score(double time, double x, double y, double heading);
+

@@ -2,14 +2,15 @@
 #include "config.h"
 #include "pros/rtos.hpp"
 
-void score(int time, int x_cord, int y_cord, int heading){
+void score(double time,double x_cord,double y_cord,double heading){
     
     //reverse motors to line up with goal
-    AllMotors.move(-60);
+    
     intake.move(127);
+    AllMotors.move(-120);
 
     //delay for selected time
-    pros::delay(time);
+    pros::delay(time*1000);
     intake.move(0);
     AllMotors.move(0);
 

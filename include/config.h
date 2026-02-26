@@ -1,3 +1,7 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+
+
 #include "lemlib/api.hpp" // IWYU pragma: keep
 #include "pros/abstract_motor.hpp"
 #include "pros/adi.h"
@@ -6,7 +10,11 @@
 #include "pros/motor_group.hpp"
 #include "pros/misc.h"
 #include "pros/optical.hpp"
+#include "dsr.hpp"
 
+using namespace WallAngles;
+using namespace HeadingOffsets;
+using namespace FeildWalls;
 
 
 
@@ -20,28 +28,39 @@
 inline pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
 // motor groups
-inline pros::MotorGroup leftMotors({-13, -14, -15}, pros::MotorGearset::blue); 
-inline pros::MotorGroup rightMotors({16, 17, 18}, pros::MotorGearset::blue);
-inline pros::MotorGroup AllMotors({-13, -14, -15, 16, 17, 18}, pros::MotorGearset::blue);
+inline pros::MotorGroup leftMotors({-1, -2, -3}, pros::MotorGearset::blue); 
+inline pros::MotorGroup rightMotors({4, 5, 6}, pros::MotorGearset::blue);
+inline pros::MotorGroup AllMotors({-1, -2, -3, 4, 5, 6}, pros::MotorGearset::blue);
 //motors
-inline pros::Motor firstStage(20, pros::MotorGearset::blue);
-inline pros::Motor secondStage(-12,pros::MotorGearset::blue);
-inline pros::MotorGroup intake({20,-12},pros::MotorGearset::blue);
+inline pros::Motor firstStage(20,pros::MotorGearset::blue);
+inline pros::Motor secondStage(-11,pros::MotorGearset::blue);
+inline pros::MotorGroup intake({-11,20},pros::MotorGearset::blue);
 
 // Inertial Sensor on port 10
 inline pros::Imu imu(9);
 
 // pneumatics
-inline pros::adi::Pneumatics wing('b',LOW);
-inline pros::adi::Pneumatics scraper('c',LOW);
-inline pros::adi::Pneumatics mid_goal('a',LOW);
+inline pros::adi::Pneumatics wing('a',LOW);
+inline pros::adi::Pneumatics scraper('b',LOW);
+inline pros::adi::Pneumatics mid_goal('c',LOW);
 
 // tracking wheels
-inline pros::Rotation rotation_vertical(19);
+inline pros::Rotation rotation_vertical(-10);
 
 //optical sensors
-inline pros::Optical top_optical(12);
-inline pros::Optical middle_optical(11);
+inline pros::Optical top_optical(99);
+inline pros::Optical middle_optical(99);
+
+//distance sensors
+inline pros::Distance frontDs(12);
+inline pros::Distance leftDs(13);
+inline pros::Distance rightDs(14);
+
+//distance sensor objects
+inline DistanceSensor frontDistanceSensor(frontDs, 4.95, 4.75, HeadingOffsets::HeadingOffsetFront);
+inline DistanceSensor leftDistanceSensor(leftDs, 5.25, 3, HeadingOffsets::HeadingOffsetLeft);
+inline DistanceSensor rightDistanceSensor(rightDs, 5.25, 3, HeadingOffsets::HeadingOffsetRight);
+
 
 // tracking wheels
 inline lemlib::TrackingWheel tw_vertical(&rotation_vertical, lemlib::Omniwheel::NEW_2, 0);
@@ -108,22 +127,5 @@ inline lemlib::Chassis chassis(drivetrain,
                                  &steerCurve);
 
 
-//distance sensors
-inline pros::Distance frontDs(99);
-inline pros::Distance leftDs(99);
-inline pros::Distance rightDs(99);
 
-
-namespace WallAngles {
-    constexpr double BOTTOM = 0.0;    // horizontal wall at bottom
-    constexpr double RIGHT = 90.0;    // vertical wall on right
-    constexpr double TOP = 180.0;     // horizontal wall at top
-    constexpr double LEFT = 270.0;    // vertical wall on left
-}                                
-
-
-namespace HeadingOffsets {
-    constexpr double HOR = -90.0;    // right ds
-    constexpr double HOF = 0.0;      // front ds
-    constexpr double HOL = 90.0;      // left ds
-}
+#endif // CONFIG_H

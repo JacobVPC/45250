@@ -10,7 +10,6 @@ enum BlockColor {
 };
 
 extern BlockColor detect_block_color(pros::Optical& optical_sensor, int min_proximity);
-
 extern int count_blocks(pros::Optical& optical_sensor, int num_blocks, int timeout_ms, int delay);
 
 #endif

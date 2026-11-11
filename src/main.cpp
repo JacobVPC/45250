@@ -10,10 +10,9 @@
 
 void initialize() {
     
-    wing.set_value(true);
     pros::lcd::initialize(); 
     chassis.calibrate();
-    chassis.setPose(0,0,180);
+    chassis.setPose(0,0,0);
 
 
     pros::Task backgroundScreenTask([&]() {
@@ -39,19 +38,9 @@ void competition_initialize() {}
 
 void autonomous() {
 
-    //auto_awp();
-
-    //auto_left_7();
-
-    //auto_right_7();
-
-    //auto_left_counter();
-
-    //auto_left_4();
-
-    //auto_right_4();
-   
-    skills();
+    chassis.setPose(0,0,0);
+    chassis.turnToHeading(90, 10000,{.maxSpeed = 30,.minSpeed = 0});
+    
 
 }
 
@@ -61,72 +50,69 @@ void autonomous() {
 
 void opcontrol() {
     
-    scraper.set_value(false);
+    
 
 
     //variable declorations and initilizations
-    bool wingOn = false;
-    bool scraperOn = false;
-    bool midOn = false;
+    
+    bool toggleOn = false;
 
     //motor break changing from brake to coast
-    firstStage.set_brake_mode(pros::MotorBrake::coast);
-    secondStage.set_brake_mode(pros::MotorBrake::coast);
-    intake.set_brake_mode(pros::MotorBrake::coast);
+    toggle.set_brake_mode(pros::MotorBrake::coast);
+    cascade.set_brake_mode(pros::MotorBrake::brake);
+    claw.set_brake_mode(pros::MotorBrake::brake);
+   
 
     while (true) {
 
         // get left y and right x positions
         int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
         int rightX = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
-        chassis.arcade(leftY, rightX);
+        chassis.arcade(leftY, -rightX);
 
-        //intake controlls
+        //motor controlls
         if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){ 
-            firstStage.move(127);
-            secondStage.move(-40);
-            
+            claw.move(127);
+               
         } else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
-            intake.move(127);
-
-        } else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){ 
-            intake.move(-127);
-
-        }else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
-            firstStage.move(85);
-            
+            claw.move(-127);
         
         } else{
-            firstStage.brake();
-            secondStage.brake();
-            intake.brake();
+            claw.brake();
         }
         
-
-        //wing controlls
-        if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)){ 
-            wingOn = !wingOn;
-            wing.set_value(wingOn);
+        if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){ 
+            cascade.move(127);
+               
+        } else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
+            cascade.move(-127);
+        
+        } else{
+            cascade.brake();
+        }
+        
+        if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)){
+            toggleOn = !toggleOn;
         }
 
-        //scraper pneumatic controlls
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
-            scraperOn = !scraperOn;
-            scraper.set_value(scraperOn);
-        } 
+        toggle.move(toggleOn ? 127 : 0);
 
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
-            midOn = !midOn;
-            mid_goal.set_value(midOn);
-        }
+        // //wing controlls
+        // if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)){ 
+        //     wingOn = !wingOn;
+        //     wing.set_value(wingOn);
+        // }
 
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)) {
-            pros::lcd::print(6, "front Ds %f", frontDistanceSensor.getDistance(WallAngles::FrontWallAngle));
-            pros::lcd::print(7, "left Ds %f", leftDistanceSensor.getDistance(WallAngles::LeftWallAngle));
+        // //scraper pneumatic controlls
+        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
+        //     scraperOn = !scraperOn;
+        //     scraper.set_value(scraperOn);
+        // } 
 
-            ResetPose(frontDistanceSensor, WallAngles::FrontWallAngle, FeildWalls::FrontWall, false,
-                      leftDistanceSensor, WallAngles::LeftWallAngle, FeildWalls::LeftWall, true);
-        }
+        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
+        //     midOn = !midOn;
+        //     mid_goal.set_value(midOn);
+        // }
 
 
 

@@ -11,6 +11,7 @@
 #include "pros/misc.h"
 #include "pros/optical.hpp"
 #include "dsr.hpp"
+#include "vector"
 
 using namespace WallAngles;
 using namespace HeadingOffsets;
@@ -28,38 +29,46 @@ using namespace FeildWalls;
 inline pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
 // motor groups
-inline pros::MotorGroup leftMotors({-1, -2, -3}, pros::MotorGearset::blue); 
-inline pros::MotorGroup rightMotors({4, 5, 6}, pros::MotorGearset::blue);
-inline pros::MotorGroup AllMotors({-1, -2, -3, 4, 5, 6}, pros::MotorGearset::blue);
+inline pros::MotorGroup leftMotors({12, 13}, pros::MotorGearset::blue); 
+inline pros::MotorGroup rightMotors({-14, -15}, pros::MotorGearset::blue);
+inline pros::MotorGroup AllMotors({12,13,-14,-15}, pros::MotorGearset::blue);
 //motors
-inline pros::Motor firstStage(20,pros::MotorGearset::blue);
-inline pros::Motor secondStage(-11,pros::MotorGearset::blue);
-inline pros::MotorGroup intake({-11,20},pros::MotorGearset::blue);
+inline pros::Motor lcas(6,pros::MotorGearset::green);
+inline pros::Motor rcas(-7,pros::MotorGearset::green);
+inline pros::MotorGroup cascade({6,-7},pros::MotorGearset::green);
+inline pros::Motor claw(-5); //5.5 w motor
 
-// Inertial Sensor on port 10
-inline pros::Imu imu(9);
+inline pros::Motor ltoggle(-10,pros::MotorGearset::green);
+inline pros::Motor rtoggle(9,pros::MotorGearset::green);
+inline pros::MotorGroup toggle({-10,9},pros::MotorGearset::green);
 
-// pneumatics
-inline pros::adi::Pneumatics wing('a',LOW);
-inline pros::adi::Pneumatics scraper('b',LOW);
-inline pros::adi::Pneumatics mid_goal('c',LOW);
+// Inertial Sensor 
+inline pros::Imu imu(17);
+
+
+
+//group
+inline std::vector<pros::adi::Pneumatics> psitoggle = {
+    pros::adi::Pneumatics('a', LOW),
+    pros::adi::Pneumatics('b', LOW)
+};
+
 
 // tracking wheels
-inline pros::Rotation rotation_vertical(-10);
+inline pros::Rotation rotation_vertical(-16);
 
-//optical sensors
-inline pros::Optical top_optical(99);
-inline pros::Optical middle_optical(99);
+
 
 //distance sensors
-inline pros::Distance frontDs(12);
-inline pros::Distance leftDs(13);
-inline pros::Distance rightDs(14);
+inline pros::Distance frontDs(4);
+inline pros::Distance leftDs(3);
+inline pros::Distance rightDs(2);
+inline pros::Distance backDs(1);
 
 //distance sensor objects
-inline DistanceSensor frontDistanceSensor(frontDs, 4.95, 4.75, HeadingOffsets::HeadingOffsetFront);
-inline DistanceSensor leftDistanceSensor(leftDs, 5.25, 3, HeadingOffsets::HeadingOffsetLeft);
-inline DistanceSensor rightDistanceSensor(rightDs, 5.25, 3, HeadingOffsets::HeadingOffsetRight);
+// inline DistanceSensor frontDistanceSensor(frontDs, 4.95, 4.75, HeadingOffsets::HeadingOffsetFront);
+// inline DistanceSensor leftDistanceSensor(leftDs, 5.25, 3, HeadingOffsets::HeadingOffsetLeft);
+// inline DistanceSensor rightDistanceSensor(rightDs, 5.25, 3, HeadingOffsets::HeadingOffsetRight);
 
 
 // tracking wheels
@@ -87,14 +96,14 @@ inline lemlib::ControllerSettings linearController(8, // proportional gain (kP)
 );
 
 // angular motion controller PID
-inline lemlib::ControllerSettings angularController(3, // proportional gain (kP)
+inline lemlib::ControllerSettings angularController(0.5, // proportional gain (kP)
                                              0, // integral gain (kI)
-                                             30, // derivative gain (kD)
+                                             5, // derivative gain (kD)
                                              0, // anti windup
-                                             0, // small error range, in degrees
-                                             0, // small error range timeout, in milliseconds
-                                             0, // large error range, in degrees
-                                             0, // large error range timeout, in milliseconds
+                                             1, // small error range, in degrees
+                                             200, // small error range timeout, in milliseconds
+                                             3, // large error range, in degrees
+                                             500, // large error range timeout, in milliseconds
                                              0 // maximum acceleration (slew)
 );
 
